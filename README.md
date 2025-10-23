@@ -1,87 +1,50 @@
-# Welcome to React Router!
+# React Router v7 + Better Auth
 
-A modern, production-ready template for building full-stack React applications using React Router.
+React Router v7にBetter Authを使ったGoogle OAuth認証を実装したプロジェクト
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## セットアップ
 
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
-
-## Getting Started
-
-### Installation
-
-Install the dependencies:
+### 1. 依存関係のインストール
 
 ```bash
-npm install
+pnpm install
 ```
 
-### Development
+### 2. 環境変数の設定
 
-Start the development server with HMR:
+`.env.example`をコピーして`.env`を作成し、Google OAuth認証情報を設定：
 
 ```bash
-npm run dev
+cp .env.example .env
 ```
 
-Your application will be available at `http://localhost:5173`.
+Google Cloud Consoleで取得したクライアントIDとシークレットを設定：
 
-## Building for Production
+```env
+GOOGLE_CLIENT_ID=your-google-client-id
+GOOGLE_CLIENT_SECRET=your-google-client-secret
+```
 
-Create a production build:
+### 3. データベースのセットアップ
+
+スキーマを生成：
 
 ```bash
-npm run build
+pnpm dlx @better-auth/cli@latest generate --config ./lib/auth.ts
 ```
 
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
+マイグレーションを実行：
 
 ```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
+pnpm dlx @better-auth/cli@latest migrate --config ./lib/auth.ts
 ```
 
-The containerized application can be deployed to any platform that supports Docker, including:
+## 開発
 
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
+開発サーバーを起動：
 
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
+```bash
+pnpm dev
 ```
 
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+ブラウザで `http://localhost:5173` にアクセス
