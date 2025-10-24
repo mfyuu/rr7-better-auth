@@ -6,7 +6,5 @@
 /.react-router/
 /build/
 
-# Database
-database.sqlite
-*.sqlite
+# Database files
 *.db
