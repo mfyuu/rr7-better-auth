@@ -48,3 +48,33 @@ pnpm dev
 ```
 
 ブラウザで `http://localhost:5173` にアクセス
+
+## サーバー管理
+
+### 開発サーバーの停止
+
+ローカルサーバーを停止するには：
+
+```bash
+# better-auth専用の停止（ポート5173-5179）
+pnpm stop
+# または
+pnpm stop:all
+```
+
+### 停止対象
+
+- **ポート範囲**: 5173-5179（better-auth専用）
+- **プロセス**: `react-router.*dev`, `vite.*dev`, `better-auth`
+
+### トラブルシューティング
+
+プロセスが停止しない場合：
+
+```bash
+# プロセス確認
+lsof -i :5173
+
+# 手動停止
+kill -9 <PID>
+```
