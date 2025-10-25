@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # .envファイルを自動更新するスクリプト
-# SSMポートフォワーディング後に実行して、正しいデータベース認証情報を設定
+# Amazon DSQLクラスターの接続情報を設定
 
 set -e
 
@@ -17,34 +17,45 @@ fi
 
 echo "Using AWS Profile: $AWS_PROFILE"
 
-# データベース認証情報を取得
-echo "Retrieving database credentials..."
+# Amazon DSQLクラスター情報を取得
+echo "Retrieving Amazon DSQL cluster information..."
 
-# データベースエンドポイント
-RDS_ENDPOINT=$(aws ssm get-parameter --region us-east-1 --name "/rr7-better-auth/database/endpoint" --query 'Parameter.Value' --output text 2>/dev/null)
-if [ $? -ne 0 ] || [ -z "$RDS_ENDPOINT" ]; then
-    echo "Error: Failed to retrieve RDS endpoint."
+# DSQLエンドポイント
+DSQL_ENDPOINT=$(aws ssm get-parameter --region us-east-1 --name "/rr7-better-auth/dsql/endpoint" --query 'Parameter.Value' --output text 2>/dev/null)
+if [ $? -ne 0 ] || [ -z "$DSQL_ENDPOINT" ]; then
+    echo "Error: Failed to retrieve DSQL endpoint."
     echo "Please ensure the CDK stack is deployed."
     exit 1
 fi
 
-# データベース認証情報
-SECRET_JSON=$(aws secretsmanager get-secret-value --secret-id $(aws ssm get-parameter --name "/rr7-better-auth/database/secret-arn" --region us-east-1 --query 'Parameter.Value' --output text) --region us-east-1 --query 'SecretString' --output text 2>/dev/null)
-if [ $? -ne 0 ] || [ -z "$SECRET_JSON" ]; then
-    echo "Error: Failed to retrieve database credentials."
+# DSQLポート
+DSQL_PORT=$(aws ssm get-parameter --region us-east-1 --name "/rr7-better-auth/dsql/port" --query 'Parameter.Value' --output text 2>/dev/null)
+if [ $? -ne 0 ] || [ -z "$DSQL_PORT" ]; then
+    echo "Error: Failed to retrieve DSQL port."
     exit 1
 fi
 
-# JSONから認証情報を抽出
-USERNAME=$(echo "$SECRET_JSON" | jq -r '.username')
-PASSWORD=$(echo "$SECRET_JSON" | jq -r '.password')
+# DSQLデータベース名
+DSQL_DATABASE=$(aws ssm get-parameter --region us-east-1 --name "/rr7-better-auth/dsql/database" --query 'Parameter.Value' --output text 2>/dev/null)
+if [ $? -ne 0 ] || [ -z "$DSQL_DATABASE" ]; then
+    echo "Error: Failed to retrieve DSQL database name."
+    exit 1
+fi
 
-# パスワードをURLエンコード
-ENCODED_PASSWORD=$(echo "$PASSWORD" | sed 's/`/%60/g; s/!/%21/g; s/&/%26/g; s/\[/%5B/g; s/\]/%5D/g; s/#/%23/g; s/\$/%24/g')
+# DSQLクラスターARN
+DSQL_CLUSTER_ARN=$(aws ssm get-parameter --region us-east-1 --name "/rr7-better-auth/dsql/cluster-arn" --query 'Parameter.Value' --output text 2>/dev/null)
+if [ $? -ne 0 ] || [ -z "$DSQL_CLUSTER_ARN" ]; then
+    echo "Error: Failed to retrieve DSQL cluster ARN."
+    exit 1
+fi
 
-echo "Database credentials retrieved:"
-echo "  Username: $USERNAME"
-echo "  Endpoint: $RDS_ENDPOINT (via SSM tunnel)"
+# DSQLクラスターID
+DSQL_CLUSTER_ID=$(echo "$DSQL_CLUSTER_ARN" | cut -d'/' -f2)
+
+echo "Amazon DSQL cluster information retrieved:"
+echo "  Endpoint: $DSQL_ENDPOINT"
+echo "  Port: $DSQL_PORT"
+echo "  Database: $DSQL_DATABASE"
 
 # .envファイルを更新
 echo "Updating .env file..."
@@ -70,13 +81,19 @@ BETTER_AUTH_SECRET=dev-secret-key-1761372177
 BETTER_AUTH_URL=http://localhost:5173
 
 # =============================================================================
-# Database Configuration
+# Amazon DSQL Configuration
 # =============================================================================
 
-# PostgreSQL Database URL
-# 形式: postgresql://ユーザー名:パスワード@ホスト:ポート/データベース名
-# SSMポートフォワーディング経由でlocalhost:5432に接続
-DATABASE_URL=postgresql://${USERNAME}:${ENCODED_PASSWORD}@localhost:5432/better_auth
+# Amazon DSQL接続情報
+# IAM認証を使用してAmazon DSQLクラスターに接続
+DSQL_ENDPOINT=${DSQL_ENDPOINT}
+DSQL_PORT=${DSQL_PORT}
+DSQL_DATABASE=${DSQL_DATABASE}
+DSQL_CLUSTER_ARN=${DSQL_CLUSTER_ARN}
+DSQL_CLUSTER_ID=${DSQL_CLUSTER_ID}
+
+# AWS Region
+AWS_REGION=us-east-1
 
 # =============================================================================
 # Google OAuth Configuration
@@ -100,4 +117,6 @@ VITE_BETTER_AUTH_URL=http://localhost:5173
 EOF
 
 echo "✅ .envファイルが更新されました"
-echo "   DATABASE_URL=postgresql://${USERNAME}:***@localhost:5432/better_auth"
+echo "   DSQL_ENDPOINT=${DSQL_ENDPOINT}"
+echo "   DSQL_PORT=${DSQL_PORT}"
+echo "   DSQL_DATABASE=${DSQL_DATABASE}"
