@@ -1,14 +1,16 @@
 import { betterAuth } from "better-auth";
 import pkg from "pg";
+import dotenv from "dotenv";
+
 const { Pool } = pkg;
 
+dotenv.config();
+
 /**
- * PostgreSQL接続プールの設定
- * 
- * @description
- * - 本番環境ではSSL接続を有効化
- * - 開発環境ではSSL接続を無効化
- * - 接続文字列は環境変数から取得、フォールバックは開発用設定
+ * PostgreSQL接続プール設定
+ *
+ * 環境変数から接続情報を取得し、本番環境ではSSL接続を有効化
+ * 開発環境ではSSMポートフォワーディング経由でlocalhost:5432に接続
  */
 const pool = new Pool({
 	connectionString: process.env.DATABASE_URL || "postgresql://better_auth:better_auth_password@localhost:5432/better_auth",
@@ -17,12 +19,9 @@ const pool = new Pool({
 
 /**
  * Better Auth設定
- * 
- * @description
- * PostgreSQLデータベースを使用した認証システムの設定
- * - データベース: PostgreSQL接続プール
- * - 認証プロバイダー: Google OAuth
- * - セッション管理: Better Auth標準機能
+ *
+ * Google OAuth認証とPostgreSQLデータベースを使用した認証システム
+ * 環境変数から設定値を取得し、フォールバック値を提供
  */
 export const auth = betterAuth({
 	baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5173",

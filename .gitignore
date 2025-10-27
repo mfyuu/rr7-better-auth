@@ -8,3 +8,7 @@
 
 # Database files
 *.db
+
+# CDK
+cdk.out/
+cdk.context.json
