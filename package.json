@@ -24,8 +24,7 @@
 		"morgan": "^1.10.1",
 		"react": "^19.1.1",
 		"react-dom": "^19.1.1",
-		"react-router": "^7.9.2",
-		"vite-plugin-react-router-amplify-hosting": "^0.4.0"
+		"react-router": "^7.9.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.7",
@@ -40,6 +39,7 @@
 		"tailwindcss": "^4.1.13",
 		"typescript": "^5.9.2",
 		"vite": "^7.1.7",
+		"vite-plugin-react-router-amplify-hosting": "^0.4.0",
 		"vite-tsconfig-paths": "^5.1.4"
 	}
 }
