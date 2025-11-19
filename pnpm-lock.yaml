@@ -20,6 +20,9 @@ importers:
       better-auth:
         specifier: 1.4.0-beta.20
         version: 1.4.0-beta.20(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      compression:
+        specifier: ^1.8.1
+        version: 1.8.1
       express:
         specifier: ^5.1.0
         version: 5.1.0
