@@ -11,6 +11,9 @@ frontend:
     build:
       commands:
         - pnpm run build
+        # for Amplify Hosting
+        - cp -r build/server/assets .amplify-hosting/compute/default/
+        - cp .env .amplify-hosting/compute/default/.env
   artifacts:
     baseDirectory: .amplify-hosting
     files:
