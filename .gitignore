@@ -10,3 +10,5 @@
 database.sqlite
 *.sqlite
 *.db
+
+.amplify-hosting/

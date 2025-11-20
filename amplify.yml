@@ -1,18 +1,16 @@
 version: 1
-# vite-plugin-react-router-amplify-hosting requires Node.js v20 or later
-env:
-  variables:
-    NODE_VERSION: 22
 frontend:
   phases:
     preBuild:
       commands:
+        # vite-plugin-react-router-amplify-hosting requires Node.js v20 or later
+        - nvm install 20
+        - nvm use 20
         - corepack enable
         - pnpm install
     build:
       commands:
         - pnpm run build
-        - cp -r build/server/assets .amplify-hosting/compute/default/
   artifacts:
     baseDirectory: .amplify-hosting
     files:
