@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { customSession } from "better-auth/plugins";
+import "dotenv/config";
 
 export const auth = betterAuth({
 	// データベース構成がなければ自動的にステートレスモードが有効になる
